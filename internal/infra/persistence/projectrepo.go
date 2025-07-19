@@ -7,27 +7,36 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/jgr142/zeno/internal/domain"
 )
 
 type ProjectRepo struct {
-	projects []domain.Project
+	projects     map[domain.Project]struct{}
+	projectPaths map[string]struct{}
 }
 
 func New() *ProjectRepo {
-	projects := searchProjects()
-	return &ProjectRepo{projects: projects}
+	projects, projectPaths := searchProjects()
+	return &ProjectRepo{
+		projects:     projects,
+		projectPaths: projectPaths,
+	}
 }
 
-func searchProjects() []domain.Project {
+func (pr *ProjectRepo) Get() map[domain.Project]struct{} {
+	return pr.projects
+}
+
+func searchProjects() (map[domain.Project]struct{}, map[string]struct{}) {
 	projectsRoot := "/Users/joshuagisiger/projects"
-	projectDirs := make([]string, 0)
+	projectPaths := make(map[string]struct{})
 	err := filepath.WalkDir(
 		projectsRoot,
 		func(path string, d fs.DirEntry, err error) error {
 			// If we find a .git dir add it to proj dirs
 			if d.Name() == ".git" && d.IsDir() {
-				projectDirs = append(projectDirs, filepath.Dir(path))
+				projectPaths[filepath.Dir(path)] = struct{}{}
 				return filepath.SkipDir
 			}
 
@@ -44,21 +53,43 @@ func searchProjects() []domain.Project {
 		log.Fatal("Project Search Failed")
 	}
 
-	projects := make([]domain.Project, 0)
-	for _, project := range projectDirs {
-		lastSeparator := strings.LastIndexByte(project, os.PathSeparator)
-		projName := project[lastSeparator+1:]
-		projects = append(
-			projects,
-			domain.Project{
-				Name: projName,
-				Path: project,
-			})
+	projects := make(map[domain.Project]struct{})
+	for projectPath, _ := range projectPaths {
+		lastSeparator := strings.LastIndexByte(projectPath, os.PathSeparator)
+		projectName := projectPath[lastSeparator+1:]
+		projects[domain.Project{
+			Name: projectName,
+			Path: projectPath,
+		}] = struct{}{}
 	}
 
-	return projects
+	return projects, projectPaths
 }
 
-func (pr *ProjectRepo) Get() []domain.Project {
-	return pr.projects
+func createWatchers(projectPaths map[string]struct{}) {
+	projectsRoot := "/Users/joshuagisiger/projects"
+
+	filepath.WalkDir(projectsRoot, func(path string, d fs.DirEntry, err error) error {
+		if !d.IsDir() {
+			return nil
+		}
+
+		if strings.HasPrefix(d.Name(), ".") && d.IsDir() {
+			return filepath.SkipDir
+		}
+
+		if _, ok := projectPaths[path]; ok {
+			return filepath.SkipDir
+		}
+
+		watcher, err := fsnotify.NewWatcher()
+		if err != nil {
+			return err
+		}
+
+		watcher.Add(path)
+
+		return nil
+	},
+	)
 }
