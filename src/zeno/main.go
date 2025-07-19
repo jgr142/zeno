@@ -1,30 +1,48 @@
 package main
 
 import (
-	"fmt"
 	"io/fs"
 	"log"
 	"path/filepath"
 	"strings"
+
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
 )
 
-// type Project struct {
-// 	name     string
-// 	metaData MetaData
-// }
-
-// type MetaData struct {
-// 	createdBy      string
-// 	createdAt      time.Time
-// 	lastModifiedBy string
-// 	lastModifiedAt time.Time
-// }
-
 func main() {
-	projectDirs := searchProjects()
-	for i, proj := range projectDirs {
-		fmt.Printf("%d: %s\n", i, proj)
+	app := tview.NewApplication()
+	projectsInDir := searchProjects()
+	projectChoices := tview.NewList()
+	ifSelected := func() {
+
 	}
+	for _, project := range projectsInDir {
+		projectChoices.AddItem(project, "", 0, ifSelected)
+	}
+
+	projectChoices.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Rune() {
+		case 'j':
+			current := projectChoices.GetCurrentItem()
+			if current < projectChoices.GetItemCount()-1 {
+				projectChoices.SetCurrentItem(current + 1)
+			}
+			return nil
+		case 'k':
+			current := projectChoices.GetCurrentItem()
+			if current > 0 {
+				projectChoices.SetCurrentItem(current - 1)
+			}
+			return nil
+		}
+		return event
+	})
+
+	if err := app.SetRoot(projectChoices, true).Run(); err != nil {
+		log.Fatal(err.Error())
+	}
+
 }
 
 func searchProjects() []string {
