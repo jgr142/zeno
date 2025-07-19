@@ -2,22 +2,23 @@ package ui
 
 import (
 	"github.com/gdamore/tcell/v2"
+	"github.com/jgr142/zeno/internal/domain"
 	"github.com/rivo/tview"
 )
 
 type projectList struct {
 	*tview.List
-	projects *[]string
+	projects []domain.Project
 }
 
-func NewProjectList(projects *[]string) *projectList {
+func NewProjectList(projects []domain.Project) *projectList {
 	projectChoices := tview.NewList()
 	ifSelected := func() {
 
 	}
 
-	for _, project := range *projects {
-		projectChoices.AddItem(project, "", 0, ifSelected)
+	for _, project := range projects {
+		projectChoices.AddItem(project.Name, project.Path, 0, ifSelected)
 	}
 
 	projectChoices.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {

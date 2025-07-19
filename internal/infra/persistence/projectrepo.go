@@ -3,11 +3,23 @@ package persistence
 import (
 	"io/fs"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/jgr142/zeno/internal/domain"
 )
 
-func searchProjects() []string {
+type ProjectRepo struct {
+	projects []domain.Project
+}
+
+func New() *ProjectRepo {
+	projects := searchProjects()
+	return &ProjectRepo{projects: projects}
+}
+
+func searchProjects() []domain.Project {
 	projectsRoot := "/Users/joshuagisiger/projects"
 	projectDirs := make([]string, 0)
 	err := filepath.WalkDir(
@@ -32,5 +44,21 @@ func searchProjects() []string {
 		log.Fatal("Project Search Failed")
 	}
 
-	return projectDirs
+	projects := make([]domain.Project, 0)
+	for _, project := range projectDirs {
+		lastSeparator := strings.LastIndexByte(project, os.PathSeparator)
+		projName := project[lastSeparator+1:]
+		projects = append(
+			projects,
+			domain.Project{
+				Name: projName,
+				Path: project,
+			})
+	}
+
+	return projects
+}
+
+func (pr *ProjectRepo) Get() []domain.Project {
+	return pr.projects
 }
