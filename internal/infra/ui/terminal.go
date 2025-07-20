@@ -9,7 +9,7 @@ import (
 
 func Init(projectsInDir []domain.Project) {
 	app := tview.NewApplication()
-	projectsDisplay := NewProjectsDisplay(projectsInDir)
+	projectsDisplay := NewProjectsDisplay(app, projectsInDir)
 	if err := app.SetRoot(projectsDisplay, true).Run(); err != nil {
 		log.Fatal(err.Error())
 	}
