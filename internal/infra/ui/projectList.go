@@ -1,10 +1,12 @@
 package ui
 
 import (
+	"log"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/jgr142/zeno/internal/domain"
+	"github.com/jgr142/zeno/internal/svc/project"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/rivo/tview"
 )
@@ -22,6 +24,7 @@ func NewProjectList(projects []domain.Project, onSearch func()) *projectList {
 	projectList.
 		ShowSecondaryText(false).
 		SetSelectedFocusOnly(false).
+		SetSelectedFunc(projectList.selectedFunc).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Rune() {
 			case 'j':
@@ -41,7 +44,14 @@ func NewProjectList(projects []domain.Project, onSearch func()) *projectList {
 					projectList.onSearch()
 					return nil
 				}
+				// TODO: add support for vim like commands
+				// case ' ', 'l':
+				// 	project.Open(projectList.GetCurrentItem())
 			}
+
+			// switch event.Key() {
+			// case tcell.KeyEnter, tcell.KeyRight:
+			// }
 
 			return event
 		})
@@ -69,4 +79,14 @@ func (pj *projectList) Filter(filter string) {
 
 func (pj *projectList) SetOnSearch(fn func()) {
 	pj.onSearch = fn
+}
+
+func (pj *projectList) selectedFunc(idx int, mainText string, secondaryText string, shortcut rune) {
+	for _, proj := range pj.projects {
+		if proj.Name == mainText {
+			project.Open(proj)
+			return
+		}
+	}
+	log.Fatalf("Project Not Found")
 }
