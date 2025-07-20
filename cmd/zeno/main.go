@@ -7,7 +7,7 @@ import (
 
 func main() {
 	projectRepo := persistence.New()
-	projects := projectRepo.Get()
+	projects := projectRepo.GetAll()
 	projectList := projects.Items()
 	ui.Init(projectList)
 }

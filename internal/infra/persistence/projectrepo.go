@@ -59,6 +59,6 @@ func searchProjects() set.Set[domain.Project] {
 	return *projects
 }
 
-func (pr *ProjectRepo) Get() set.Set[domain.Project] {
+func (pr *ProjectRepo) GetAll() set.Set[domain.Project] {
 	return pr.projects
 }
