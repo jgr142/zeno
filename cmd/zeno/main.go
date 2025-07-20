@@ -6,6 +6,8 @@ import (
 )
 
 func main() {
-	projRepo := persistence.New()
-	ui.Init(projRepo.Get())
+	projectRepo := persistence.New()
+	projects := projectRepo.Get()
+	projectList := projects.Items()
+	ui.Init(projectList)
 }

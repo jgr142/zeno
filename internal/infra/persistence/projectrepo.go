@@ -8,10 +8,11 @@ import (
 	"strings"
 
 	"github.com/jgr142/zeno/internal/domain"
+	"github.com/jgr142/zeno/pkg/set"
 )
 
 type ProjectRepo struct {
-	projects []domain.Project
+	projects set.Set[domain.Project]
 }
 
 func New() *ProjectRepo {
@@ -19,7 +20,7 @@ func New() *ProjectRepo {
 	return &ProjectRepo{projects: projects}
 }
 
-func searchProjects() []domain.Project {
+func searchProjects() set.Set[domain.Project] {
 	projectsRoot := "/Users/joshuagisiger/projects"
 	projectDirs := make([]string, 0)
 	err := filepath.WalkDir(
@@ -44,21 +45,20 @@ func searchProjects() []domain.Project {
 		log.Fatal("Project Search Failed")
 	}
 
-	projects := make([]domain.Project, 0)
+	projects := set.NewSet[domain.Project]()
 	for _, project := range projectDirs {
 		lastSeparator := strings.LastIndexByte(project, os.PathSeparator)
 		projName := project[lastSeparator+1:]
-		projects = append(
-			projects,
+		projects.Add(
 			domain.Project{
 				Name: projName,
 				Path: project,
 			})
 	}
 
-	return projects
+	return *projects
 }
 
-func (pr *ProjectRepo) Get() []domain.Project {
+func (pr *ProjectRepo) Get() set.Set[domain.Project] {
 	return pr.projects
 }
