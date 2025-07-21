@@ -5,21 +5,22 @@ import (
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
-	"github.com/jgr142/zeno/internal/domain"
-	"github.com/jgr142/zeno/internal/svc/project"
+	"github.com/jgr142/zeno/internal/project"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/rivo/tview"
 )
 
 type projectList struct {
 	*tview.List
-	projects []domain.Project
+	project  ProjectRepo
+	projects []project.Project
 	onSearch func()
 }
 
-func NewProjectList(projects []domain.Project, onSearch func()) *projectList {
+func NewProjectList(project ProjectRepo, onSearch func()) *projectList {
+	projects := project.GetAll()
 	projectChoices := tview.NewList()
-	projectList := &projectList{projectChoices, projects, onSearch} // I changed from *projectChoices to projectChoices and that fixed my j and k logic, but idk why
+	projectList := &projectList{projectChoices, project, projects, onSearch} // I changed from *projectChoices to projectChoices and that fixed my j and k logic, but idk why
 
 	projectList.
 		ShowSecondaryText(false).
@@ -84,7 +85,7 @@ func (pj *projectList) SetOnSearch(fn func()) {
 func (pj *projectList) selectedFunc(idx int, mainText string, secondaryText string, shortcut rune) {
 	for _, proj := range pj.projects {
 		if proj.Name == mainText {
-			project.Open(proj)
+			pj.project.Open(proj)
 			return
 		}
 	}

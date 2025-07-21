@@ -1,26 +1,21 @@
-package persistence
+package project
 
 import (
 	"io/fs"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
-
-	"github.com/jgr142/zeno/internal/domain"
-	"github.com/jgr142/zeno/pkg/set"
 )
 
-type ProjectRepo struct {
-	projects set.Set[domain.Project]
-}
+type ProjectRepo struct{}
 
 func New() *ProjectRepo {
-	projects := searchProjects()
-	return &ProjectRepo{projects: projects}
+	return &ProjectRepo{}
 }
 
-func searchProjects() set.Set[domain.Project] {
+func (pr *ProjectRepo) GetAll() []Project {
 	projectsRoot := "/Users/joshuagisiger/projects"
 	projectDirs := make([]string, 0)
 	err := filepath.WalkDir(
@@ -45,20 +40,21 @@ func searchProjects() set.Set[domain.Project] {
 		log.Fatal("Project Search Failed")
 	}
 
-	projects := set.NewSet[domain.Project]()
-	for _, project := range projectDirs {
-		lastSeparator := strings.LastIndexByte(project, os.PathSeparator)
-		projName := project[lastSeparator+1:]
-		projects.Add(
-			domain.Project{
-				Name: projName,
-				Path: project,
-			})
+	projects := make([]Project, 0)
+	for _, projectPath := range projectDirs {
+		lastSeparator := strings.LastIndexByte(projectPath, os.PathSeparator)
+		projectName := projectPath[lastSeparator+1:]
+		projects = append(projects, Project{projectName, projectPath})
 	}
 
-	return *projects
+	return projects
 }
 
-func (pr *ProjectRepo) GetAll() set.Set[domain.Project] {
-	return pr.projects
+func (pr *ProjectRepo) Open(project Project) {
+	// Open the project
+	cmd := exec.Command("code", project.Path)
+	_, err := cmd.Output()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

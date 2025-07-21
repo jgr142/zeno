@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"github.com/jgr142/zeno/internal/domain"
 	"github.com/rivo/tview"
 )
 
@@ -9,9 +8,9 @@ type ProjectsDisplay struct {
 	*tview.Flex
 }
 
-func NewProjectsDisplay(app *tview.Application, projects []domain.Project) *ProjectsDisplay {
+func NewProjectsDisplay(app *tview.Application, project ProjectRepo) *ProjectsDisplay {
 	// TODO: Add Frames
-	projectList := NewProjectList(projects, nil)
+	projectList := NewProjectList(project, nil)
 	projectSearch := NewProjectSearch(projectList, nil)
 
 	projectList.SetOnSearch(func() {
