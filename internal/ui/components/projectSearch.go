@@ -1,7 +1,8 @@
-package ui
+package components
 
 import (
 	"github.com/gdamore/tcell/v2"
+	"github.com/jgr142/zeno/internal/ui/theme"
 	"github.com/rivo/tview"
 )
 
@@ -10,11 +11,11 @@ type ProjectSearch struct {
 	onEscape func()
 }
 
-func NewProjectSearch(pj *projectList, onEscape func()) *ProjectSearch {
+func NewProjectSearch(pj *ProjectList, onEscape func()) *ProjectSearch {
+	t := theme.New()
 	searchInput := tview.NewInputField()
 	projectSearch := &ProjectSearch{searchInput, onEscape}
 	projectSearch.
-		SetLabel("\\").
 		SetPlaceholder("projname").
 		SetChangedFunc(func(text string) {
 			pj.Filter(text)
@@ -29,6 +30,8 @@ func NewProjectSearch(pj *projectList, onEscape func()) *ProjectSearch {
 			}
 			return event
 		})
+
+	projectSearch.SetBackgroundColor(t.Primary)
 
 	return projectSearch
 }
