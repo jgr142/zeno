@@ -15,11 +15,15 @@ func NewProjectSearch(pj *ProjectList, onEscape func()) *ProjectSearch {
 	t := theme.New()
 	searchInput := tview.NewInputField()
 	projectSearch := &ProjectSearch{searchInput, onEscape}
+
 	projectSearch.
-		SetPlaceholder("projname").
+		SetPlaceholder("Search projects...").
+		// SetFieldWidth(0).
 		SetChangedFunc(func(text string) {
 			pj.Filter(text)
 		}).
+		SetLabel("/").
+		SetFieldBackgroundColor(t.Primary).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			switch event.Key() {
 			case tcell.KeyEnter, tcell.KeyEsc:
@@ -30,8 +34,7 @@ func NewProjectSearch(pj *ProjectList, onEscape func()) *ProjectSearch {
 			}
 			return event
 		})
-
-	projectSearch.SetBackgroundColor(t.Primary)
+	// projectSearch.SetBorder(true)
 
 	return projectSearch
 }

@@ -28,13 +28,15 @@ func NewProjectList(project *project.ProjectRepo, onSearch func()) *ProjectList 
 		ShowSecondaryText(false).
 		SetSelectedFocusOnly(false).
 		SetSelectedFunc(projectList.selectedFunc).
+		SetMainTextColor(t.PrimaryText).
+		SetSelectedTextColor(t.Accent).
+		SetBorder(false).
+		SetBackgroundColor(t.Background).
 		SetInputCapture(projectList.vimMotions)
 
-	for _, project := range projects {
-		projectChoices.AddItem(project.Name, project.Path, 0, nil)
+	for _, p := range projects {
+		projectChoices.AddItem(p.Name, "", 0, nil)
 	}
-
-	projectList.SetBackgroundColor(t.Background)
 
 	return projectList
 }
@@ -42,9 +44,9 @@ func NewProjectList(project *project.ProjectRepo, onSearch func()) *ProjectList 
 func (pj *ProjectList) Filter(filter string) {
 	pj.Clear()
 
-	for _, project := range pj.projects {
-		if len(strings.Trim(filter, " ")) == 0 || fuzzy.Match(filter, project.Name) {
-			pj.AddItem(project.Name, project.Path, 0, func() {})
+	for _, p := range pj.projects {
+		if len(strings.TrimSpace(filter)) == 0 || fuzzy.Match(filter, p.Name) {
+			pj.AddItem(p.Name, "", 0, func() {})
 		}
 	}
 }
@@ -54,29 +56,27 @@ func (pj *ProjectList) SetOnSearch(fn func()) {
 }
 
 func (pj *ProjectList) selectedFunc(idx int, mainText string, secondaryText string, shortcut rune) {
-	// Open the project
 	for _, proj := range pj.projects {
 		if proj.Name == mainText {
 			pj.project.Open(proj)
 			return
 		}
 	}
-
 	log.Fatalf("Project Not Found")
 }
 
 func (pj *ProjectList) vimMotions(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Rune() {
 	case 'j':
-		current := pj.GetCurrentItem()
-		if current < pj.GetItemCount()-1 {
-			pj.SetCurrentItem(current + 1)
+		cur := pj.GetCurrentItem()
+		if cur < pj.GetItemCount()-1 {
+			pj.SetCurrentItem(cur + 1)
 		}
 		return nil
 	case 'k':
-		current := pj.GetCurrentItem()
-		if current > 0 {
-			pj.SetCurrentItem(current - 1)
+		cur := pj.GetCurrentItem()
+		if cur > 0 {
+			pj.SetCurrentItem(cur - 1)
 		}
 		return nil
 	case 'i', 'a':
@@ -84,14 +84,6 @@ func (pj *ProjectList) vimMotions(event *tcell.EventKey) *tcell.EventKey {
 			pj.onSearch()
 			return nil
 		}
-		// TODO: add support for vim like commands
-		// case ' ', 'l':
-		// 	project.Open(projectList.GetCurrentItem())
 	}
-
-	// switch event.Key() {
-	// case tcell.KeyEnter, tcell.KeyRight:
-	// }
-
 	return event
 }

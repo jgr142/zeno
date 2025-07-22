@@ -12,16 +12,15 @@ type ProjectsDisplay struct {
 
 func NewProjectsDisplay(app *tview.Application, project *project.ProjectRepo) *ProjectsDisplay {
 	t := theme.New()
-	// TODO: Add Frames
 	leftPane := defineLeftPane(app, project)
-	projectDetails := defineProjectDetails()
+	projectDetails := defineProjectDetails(t)
 
 	mainLayout := tview.NewFlex().
 		SetDirection(tview.FlexColumn).
-		AddItem(leftPane, 0, 1, true).
-		AddItem(projectDetails, 0, 2, false)
+		AddItem(leftPane, 30, 1, true).
+		AddItem(projectDetails, 0, 3, false)
 
-	mainLayout.SetBackgroundColor(t.Primary)
+	mainLayout.SetBackgroundColor(t.Background)
 
 	return &ProjectsDisplay{mainLayout}
 }
@@ -38,15 +37,22 @@ func defineLeftPane(app *tview.Application, project *project.ProjectRepo) *tview
 		app.SetFocus(projectList)
 	})
 
-	return tview.NewFlex().
+	left := tview.NewFlex().
 		SetDirection(tview.FlexRow).
 		AddItem(projectSearch, 1, 0, true).
 		AddItem(projectList, 0, 1, false)
 
+	left.SetBorder(true).SetTitle(" Projects ")
+
+	return left
 }
 
-func defineProjectDetails() *tview.TextView {
+func defineProjectDetails(t *theme.Theme) *tview.Box {
 	return tview.NewTextView().
-		SetText("Select a project to see details").
-		SetDynamicColors(true)
+		SetText("[::b]Select a project to see details").
+		SetDynamicColors(true).
+		SetWrap(true).
+		SetTextAlign(tview.AlignLeft).
+		SetBackgroundColor(t.Background)
+
 }
