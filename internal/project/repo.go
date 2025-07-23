@@ -50,9 +50,10 @@ func (pr *ProjectRepo) GetAll() []Project {
 	return projects
 }
 
-func (pr *ProjectRepo) Open(project Project) {
+func (pr *ProjectRepo) Open(projectPath string) {
 	// Open the project
-	cmd := exec.Command("code", project.Path)
+	// TODO: should add check that path is real
+	cmd := exec.Command("code", projectPath)
 	_, err := cmd.Output()
 	if err != nil {
 		log.Fatal(err)

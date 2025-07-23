@@ -10,9 +10,13 @@ type ProjectsDisplay struct {
 	*tview.Flex
 }
 
-func NewProjectsDisplay(app *tview.Application, project *project.ProjectRepo) *ProjectsDisplay {
+func NewProjectsDisplay(
+	app *tview.Application,
+	pages *tview.Pages,
+	project *project.ProjectRepo,
+) *ProjectsDisplay {
 	t := theme.New()
-	leftPane := defineLeftPane(app, project)
+	leftPane := defineLeftPane(app, pages, project)
 	projectDetails := defineProjectDetails(t)
 
 	mainLayout := tview.NewFlex().
@@ -25,8 +29,15 @@ func NewProjectsDisplay(app *tview.Application, project *project.ProjectRepo) *P
 	return &ProjectsDisplay{mainLayout}
 }
 
-func defineLeftPane(app *tview.Application, project *project.ProjectRepo) *tview.Flex {
-	projectList := NewProjectList(project, nil)
+func defineLeftPane(app *tview.Application, pages *tview.Pages, project *project.ProjectRepo) *tview.Flex {
+	projectList := NewProjectList(
+		project,
+		nil,
+		func(idx int, projectName string, projectPath string, shortcut rune) {
+			project.Open(projectPath)
+			pages.AddAndSwitchToPage("github tools", NewGithubTools(projectPath), true)
+		},
+	)
 	projectSearch := NewProjectSearch(projectList, nil)
 
 	projectList.SetOnSearch(func() {

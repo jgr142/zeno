@@ -1,7 +1,6 @@
 package components
 
 import (
-	"log"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
@@ -16,18 +15,30 @@ type ProjectList struct {
 	project  *project.ProjectRepo
 	projects []project.Project
 	onSearch func()
+	onSelect func(int, string, string, rune)
 }
 
-func NewProjectList(project *project.ProjectRepo, onSearch func()) *ProjectList {
+func NewProjectList(
+	project *project.ProjectRepo,
+	onSearch func(),
+	onSelect func(int, string, string, rune),
+) *ProjectList {
 	t := theme.New()
 	projects := project.GetAll()
 	projectChoices := tview.NewList()
-	projectList := &ProjectList{projectChoices, project, projects, onSearch}
+
+	projectList := &ProjectList{
+		projectChoices,
+		project,
+		projects,
+		onSearch,
+		onSelect,
+	}
 
 	projectList.
 		ShowSecondaryText(false).
 		SetSelectedFocusOnly(false).
-		SetSelectedFunc(projectList.selectedFunc).
+		SetSelectedFunc(onSelect).
 		SetMainTextColor(t.PrimaryText).
 		SetSelectedTextColor(t.Accent).
 		SetBorder(false).
@@ -35,7 +46,7 @@ func NewProjectList(project *project.ProjectRepo, onSearch func()) *ProjectList 
 		SetInputCapture(projectList.vimMotions)
 
 	for _, p := range projects {
-		projectChoices.AddItem(p.Name, "", 0, nil)
+		projectChoices.AddItem(p.Name, p.Path, 0, nil)
 	}
 
 	return projectList
@@ -53,16 +64,6 @@ func (pj *ProjectList) Filter(filter string) {
 
 func (pj *ProjectList) SetOnSearch(fn func()) {
 	pj.onSearch = fn
-}
-
-func (pj *ProjectList) selectedFunc(idx int, mainText string, secondaryText string, shortcut rune) {
-	for _, proj := range pj.projects {
-		if proj.Name == mainText {
-			pj.project.Open(proj)
-			return
-		}
-	}
-	log.Fatalf("Project Not Found")
 }
 
 func (pj *ProjectList) vimMotions(event *tcell.EventKey) *tcell.EventKey {

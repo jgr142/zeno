@@ -10,8 +10,13 @@ import (
 
 func Init(project *project.ProjectRepo) {
 	app := tview.NewApplication()
-	projectsDisplay := components.NewProjectsDisplay(app, project)
-	if err := app.SetRoot(projectsDisplay, true).Run(); err != nil {
+	pages := tview.NewPages()
+
+	projectsDisplay := components.NewProjectsDisplay(app, pages, project)
+
+	pages.AddPage("projects search", projectsDisplay, true, true)
+
+	if err := app.SetRoot(pages, true).Run(); err != nil {
 		log.Fatal(err.Error())
 	}
 }
