@@ -2,9 +2,11 @@ package components
 
 import (
 	"log/slog"
+	"os"
 	"os/exec"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/jgr142/zeno/internal/git"
 	"github.com/rivo/tview"
 )
 
@@ -51,22 +53,28 @@ func (gt *GithubTools) actionListeners(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Rune() {
 	// TODO: Implement handlers
 	case 'r':
+		logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+		slog.SetDefault(logger)
+
 		cmd := exec.Command(
 			"git",
-			"pull",
+			"fetch",
 			"origin",
-			"main",
 			"&&",
 			"git",
 			"rebase",
-			"main",
+			"origin/main",
 		)
-		_, err := cmd.Output()
+		out, err := cmd.Output()
 		if err != nil {
-			slog.Info("Error Running Rebase", "Error", err.Error())
+			slog.Error("Error Running Rebase", "Error", err.Error())
+			gt.SetBackgroundColor(tcell.ColorRed)
 			return nil
 		}
+		gt.SetBackgroundColor(tcell.ColorGreen)
+		slog.Info("Out Data", "StdOut", out)
 	case 'p':
+		git.AddCommitPush("feat: new feature")
 	case 'c':
 	case 'b':
 	case 's':
