@@ -76,6 +76,7 @@ func (gt *GithubTools) actionListeners(event *tcell.EventKey) *tcell.EventKey {
 	case 'p':
 		git.AddCommitPush("feat: new feature")
 	case 'c':
+		slog.Info("poop")
 	case 'b':
 	case 's':
 	case 'd':
