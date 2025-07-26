@@ -5,10 +5,6 @@ import (
 	"strings"
 )
 
-func Rebase() {
-
-}
-
 func CurBranch() (string, error) {
 	cmd := exec.Command("git", "branch")
 	out, err := cmd.Output()
@@ -84,5 +80,26 @@ func Stash() error {
 func Pop() error {
 	cmd := exec.Command("git", "stash", "pop")
 	_, err := cmd.Output()
+	return err
+}
+
+func CreateBranch(branchName string) error {
+	cmd := exec.Command("git", "-b", branchName)
+	_, err := cmd.Output()
+	return err
+}
+
+func Rebase() error {
+	cmd := exec.Command(
+		"git",
+		"fetch",
+		"origin",
+		"&&",
+		"git",
+		"rebase",
+		"origin/main",
+	)
+	_, err := cmd.Output()
+
 	return err
 }
