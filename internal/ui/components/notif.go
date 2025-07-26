@@ -13,18 +13,16 @@ func NewNotification() *Notification {
 	return &Notification{tview.NewTextView()}
 }
 
-func (n *Notification) DisplaySuccessorErr(
-	successMsg string,
-	errMsg string,
+func (n *Notification) DisplayNotification(
+	msg string,
 	isErr bool,
 ) {
 	if isErr {
 		n.setErrorUI()
-		n.SetText(errMsg)
 	} else {
 		n.setSuccessUI()
-		n.SetText(successMsg)
 	}
+	n.SetText(msg)
 }
 
 func (n *Notification) setErrorUI() {
