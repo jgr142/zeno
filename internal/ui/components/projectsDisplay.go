@@ -35,7 +35,7 @@ func defineLeftPane(app *tview.Application, pages *tview.Pages, project *project
 		nil,
 		func(idx int, projectName string, projectPath string, shortcut rune) {
 			project.Open(projectPath)
-			pages.AddAndSwitchToPage("github tools", NewGithubTools(projectPath), true)
+			pages.AddAndSwitchToPage("github tools", NewGithubTools(pages, projectPath), true)
 		},
 	)
 	projectSearch := NewProjectSearch(projectList, nil)

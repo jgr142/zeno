@@ -50,3 +50,39 @@ func AddCommitPush(commitMessage string) error {
 
 	return nil
 }
+
+func Status() ([]byte, error) {
+	cmd := exec.Command("git", "status")
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func Log() ([]byte, error) {
+	cmd := exec.Command("git", "log")
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func Pull() error {
+	cmd := exec.Command("git", "pull")
+	_, err := cmd.Output()
+	return err
+}
+
+func Stash() error {
+	cmd := exec.Command("git", "stash")
+	_, err := cmd.Output()
+	return err
+}
+
+func Pop() error {
+	cmd := exec.Command("git", "pop", "stash")
+	_, err := cmd.Output()
+	return err
+}
