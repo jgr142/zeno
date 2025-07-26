@@ -82,7 +82,7 @@ func Stash() error {
 }
 
 func Pop() error {
-	cmd := exec.Command("git", "pop", "stash")
+	cmd := exec.Command("git", "stash", "pop")
 	_, err := cmd.Output()
 	return err
 }
