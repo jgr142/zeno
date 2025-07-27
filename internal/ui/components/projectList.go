@@ -3,8 +3,8 @@ package components
 import (
 	"strings"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/jgr142/zeno/internal/project"
+	"github.com/jgr142/zeno/internal/ui/inputs"
 	"github.com/jgr142/zeno/internal/ui/theme"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/rivo/tview"
@@ -43,7 +43,7 @@ func NewProjectList(
 		SetSelectedTextColor(t.Accent).
 		SetBorder(false).
 		SetBackgroundColor(t.Background).
-		SetInputCapture(projectList.vimMotions)
+		SetInputCapture(inputs.VimInputHandler(projectList))
 
 	for _, p := range projects {
 		projectChoices.AddItem(p.Name, p.Path, 0, nil)
@@ -66,25 +66,22 @@ func (pj *ProjectList) SetOnSearch(fn func()) {
 	pj.onSearch = fn
 }
 
-func (pj *ProjectList) vimMotions(event *tcell.EventKey) *tcell.EventKey {
-	switch event.Rune() {
-	case 'j':
-		cur := pj.GetCurrentItem()
-		if cur < pj.GetItemCount()-1 {
-			pj.SetCurrentItem(cur + 1)
-		}
-		return nil
-	case 'k':
-		cur := pj.GetCurrentItem()
-		if cur > 0 {
-			pj.SetCurrentItem(cur - 1)
-		}
-		return nil
-	case 'i', 'a':
-		if pj.onSearch != nil {
-			pj.onSearch()
-			return nil
-		}
+func (pj *ProjectList) NavigateDown() {
+	cur := pj.GetCurrentItem()
+	if cur < pj.GetItemCount()-1 {
+		pj.SetCurrentItem(cur + 1)
 	}
-	return event
+}
+
+func (pj *ProjectList) NavigateUp() {
+	cur := pj.GetCurrentItem()
+	if cur > 0 {
+		pj.SetCurrentItem(cur - 1)
+	}
+}
+
+func (pj *ProjectList) OnInsertMode() {
+	if pj.onSearch != nil {
+		pj.onSearch()
+	}
 }
