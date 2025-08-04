@@ -2,35 +2,53 @@ package inputs
 
 import "github.com/gdamore/tcell/v2"
 
-// Navigatable defines components that can be navigated up and down.
+type mode int
+
+const (
+	normalMode mode = iota
+	insertMode
+)
+
 type Navigatable interface {
 	NavigateDown()
 	NavigateUp()
 }
 
-// Insertable defines components that can enter an "insert mode".
-type Insertable interface {
-	OnInsertMode()
+type vimMotions struct {
+	Navigatable
+	m mode
 }
 
-// VimInputHandler creates a tview input capture function that handles basic
-// Vim-like keybindings for components that implement Navigatable and optionally
-// Insertable.
-func VimInputHandler(v Navigatable) func(event *tcell.EventKey) *tcell.EventKey {
-	return func(event *tcell.EventKey) *tcell.EventKey {
+func NewVim(v Navigatable) *vimMotions {
+	return &vimMotions{v, normalMode}
+}
+
+func (vm *vimMotions) VimInputHandler(event *tcell.EventKey) *tcell.EventKey {
+
+	switch vm.m {
+	case normalMode:
 		switch event.Rune() {
 		case 'j':
-			v.NavigateDown()
+			vm.NavigateDown()
 			return nil
 		case 'k':
-			v.NavigateUp()
+			vm.NavigateUp()
 			return nil
 		case 'i', 'a':
-			if insertable, ok := v.(Insertable); ok {
-				insertable.OnInsertMode()
-				return nil
-			}
+			vm.m = insertMode
+			return nil
+		default:
+			return nil
 		}
-		return event
+	case insertMode:
+		switch event.Key() {
+		case tcell.KeyEnter:
+			vm.m = normalMode
+		case tcell.KeyEscape:
+			vm.m = normalMode
+		default:
+			return event
+		}
 	}
+	return nil
 }
