@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/jgr142/zeno/internal/project"
-	"github.com/jgr142/zeno/internal/ui/inputs"
 	"github.com/jgr142/zeno/internal/ui/theme"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/rivo/tview"
@@ -42,8 +41,7 @@ func NewProjectList(
 		SetMainTextColor(t.PrimaryText).
 		SetSelectedTextColor(t.Accent).
 		SetBorder(false).
-		SetBackgroundColor(t.Background).
-		SetInputCapture(inputs.VimInputHandler(projectList))
+		SetBackgroundColor(t.Background)
 
 	for _, p := range projects {
 		projectChoices.AddItem(p.Name, p.Path, 0, nil)
@@ -59,29 +57,5 @@ func (pj *ProjectList) Filter(filter string) {
 		if len(strings.TrimSpace(filter)) == 0 || fuzzy.Match(filter, p.Name) {
 			pj.AddItem(p.Name, "", 0, func() {})
 		}
-	}
-}
-
-func (pj *ProjectList) SetOnSearch(fn func()) {
-	pj.onSearch = fn
-}
-
-func (pj *ProjectList) NavigateDown() {
-	cur := pj.GetCurrentItem()
-	if cur < pj.GetItemCount()-1 {
-		pj.SetCurrentItem(cur + 1)
-	}
-}
-
-func (pj *ProjectList) NavigateUp() {
-	cur := pj.GetCurrentItem()
-	if cur > 0 {
-		pj.SetCurrentItem(cur - 1)
-	}
-}
-
-func (pj *ProjectList) OnInsertMode() {
-	if pj.onSearch != nil {
-		pj.onSearch()
 	}
 }

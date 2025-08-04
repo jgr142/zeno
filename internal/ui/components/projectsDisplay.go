@@ -2,12 +2,16 @@ package components
 
 import (
 	"github.com/jgr142/zeno/internal/project"
+	"github.com/jgr142/zeno/internal/ui/inputs"
 	"github.com/jgr142/zeno/internal/ui/theme"
 	"github.com/rivo/tview"
 )
 
 type ProjectsDisplay struct {
 	*tview.Flex
+	app         *tview.Application
+	left        *tview.Flex
+	focusedItem int
 }
 
 func NewProjectsDisplay(
@@ -16,7 +20,7 @@ func NewProjectsDisplay(
 	project *project.ProjectRepo,
 ) *ProjectsDisplay {
 	t := theme.New()
-	leftPane := defineLeftPane(app, pages, project)
+	leftPane := defineLeftPane(pages, project)
 	projectDetails := defineProjectDetails(t)
 
 	mainLayout := tview.NewFlex().
@@ -26,10 +30,14 @@ func NewProjectsDisplay(
 
 	mainLayout.SetBackgroundColor(t.Background)
 
-	return &ProjectsDisplay{mainLayout}
+	pd := &ProjectsDisplay{mainLayout, app, leftPane, 0}
+	motions := inputs.NewVim(pd)
+	pd.SetInputCapture(motions.VimInputHandler)
+
+	return pd
 }
 
-func defineLeftPane(app *tview.Application, pages *tview.Pages, project *project.ProjectRepo) *tview.Flex {
+func defineLeftPane(pages *tview.Pages, project *project.ProjectRepo) *tview.Flex {
 	projectList := NewProjectList(
 		project,
 		nil,
@@ -40,20 +48,13 @@ func defineLeftPane(app *tview.Application, pages *tview.Pages, project *project
 	)
 	projectSearch := NewProjectSearch(projectList, nil)
 
-	projectList.SetOnSearch(func() {
-		app.SetFocus(projectSearch)
-	})
-
-	projectSearch.SetOnEscape(func() {
-		app.SetFocus(projectList)
-	})
-
 	left := tview.NewFlex().
 		SetDirection(tview.FlexRow).
 		AddItem(projectSearch, 1, 0, true).
 		AddItem(projectList, 0, 1, false)
 
-	left.SetBorder(true).SetTitle(" Projects ")
+	left.SetBorder(true).
+		SetTitle(" Projects ")
 
 	return left
 }
@@ -66,4 +67,18 @@ func defineProjectDetails(t *theme.Theme) *tview.Box {
 		SetTextAlign(tview.AlignLeft).
 		SetBackgroundColor(t.Background)
 
+}
+
+func (pd *ProjectsDisplay) NavigateDown() {
+	if pd.left.GetItemCount()-1 > pd.focusedItem {
+		pd.focusedItem++
+		pd.app.SetFocus(pd.left.GetItem(pd.focusedItem))
+	}
+}
+
+func (pd *ProjectsDisplay) NavigateUp() {
+	if 0 < pd.focusedItem {
+		pd.focusedItem--
+		pd.app.SetFocus(pd.left.GetItem(pd.focusedItem))
+	}
 }
