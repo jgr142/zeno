@@ -72,13 +72,17 @@ func defineProjectDetails(t *theme.Theme) *tview.Box {
 func (pd *ProjectsDisplay) NavigateDown() {
 	if pd.left.GetItemCount()-1 > pd.focusedItem {
 		pd.focusedItem++
-		pd.app.SetFocus(pd.left.GetItem(pd.focusedItem))
 	}
 }
 
 func (pd *ProjectsDisplay) NavigateUp() {
 	if 0 < pd.focusedItem {
 		pd.focusedItem--
-		pd.app.SetFocus(pd.left.GetItem(pd.focusedItem))
 	}
 }
+
+func (pd *ProjectsDisplay) EnterChild() {
+	pd.app.SetFocus(pd.left.GetItem(pd.focusedItem))
+}
+
+func (pd *ProjectsDisplay) EnterParent() {}

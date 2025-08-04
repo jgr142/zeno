@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/jgr142/zeno/internal/project"
+	"github.com/jgr142/zeno/internal/ui/inputs"
 	"github.com/jgr142/zeno/internal/ui/theme"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/rivo/tview"
@@ -47,6 +48,9 @@ func NewProjectList(
 		projectChoices.AddItem(p.Name, p.Path, 0, nil)
 	}
 
+	motions := inputs.NewVim(projectList)
+	projectList.SetInputCapture(motions.VimInputHandler)
+
 	return projectList
 }
 
@@ -59,3 +63,19 @@ func (pj *ProjectList) Filter(filter string) {
 		}
 	}
 }
+
+func (pj *ProjectList) NavigateUp() {
+	if 0 < pj.GetCurrentItem() {
+		pj.SetCurrentItem(pj.GetCurrentItem() - 1)
+	}
+}
+
+func (pj *ProjectList) NavigateDown() {
+	if pj.GetItemCount()-1 > pj.GetCurrentItem() {
+		pj.SetCurrentItem(pj.GetCurrentItem() + 1)
+	}
+}
+
+func (pj *ProjectList) EnterChild() {}
+
+func (pj *ProjectList) EnterParent() {}

@@ -12,6 +12,8 @@ const (
 type Navigatable interface {
 	NavigateDown()
 	NavigateUp()
+	EnterParent()
+	EnterChild()
 }
 
 type vimMotions struct {
@@ -36,16 +38,21 @@ func (vm *vimMotions) VimInputHandler(event *tcell.EventKey) *tcell.EventKey {
 			return nil
 		case 'i', 'a':
 			vm.m = insertMode
+			vm.EnterChild()
 			return nil
 		default:
 			return nil
 		}
 	case insertMode:
 		switch event.Key() {
-		case tcell.KeyEnter:
-			vm.m = normalMode
+		// case tcell.KeyEnter:
+		// 	vm.m = normalMode
+		// 	vm.EnterParent()
+		// 	return nil
 		case tcell.KeyEscape:
 			vm.m = normalMode
+			vm.EnterParent()
+			return nil
 		default:
 			return event
 		}
