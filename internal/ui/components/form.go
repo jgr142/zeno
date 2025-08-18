@@ -27,3 +27,39 @@ func (f *Form) Form() *tview.Form {
 func (f *Form) Notify(msg string, isError bool) {
 	f.notify(msg, isError)
 }
+
+func (f *Form) NavigateDown() {
+	idx := -1
+	item, button := f.form.GetFocusedItemIndex()
+	if item != -1 {
+		idx = item
+	}
+
+	if button != -1 {
+		idx = item
+	}
+
+	if idx == -1 || idx == f.form.GetFormItemCount()-1 {
+		return
+	}
+
+	f.form.SetFocus(idx + 1)
+}
+
+func (f *Form) NavigateUp() {
+	idx := -1
+	item, button := f.form.GetFocusedItemIndex()
+	if item != -1 {
+		idx = item
+	}
+
+	if button != -1 {
+		idx = item
+	}
+
+	if idx == -1 || idx == 0 {
+		return
+	}
+
+	f.form.SetFocus(idx - 1)
+}

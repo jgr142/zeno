@@ -26,12 +26,12 @@ var (
 
 type GithubTools struct {
 	*tview.Flex
-	pages       *tview.Pages
+	// pages       *tview.Pages
 	projectPath string
 	notify      func(msg string, isErr bool)
 }
 
-func NewGithubTools(pages *tview.Pages, projectPath string) *GithubTools {
+func NewGithubTools(projectPath string) *GithubTools {
 	// Set Up Flex Structure
 	mainDisplay := tview.NewTextView()
 	notif := NewNotification()
@@ -43,7 +43,7 @@ func NewGithubTools(pages *tview.Pages, projectPath string) *GithubTools {
 		// Configure Pages that you can switch to
 	gt := &GithubTools{
 		skltn,
-		pages,
+		// pages,
 		projectPath,
 		notif.DisplayNotification,
 	}
@@ -74,6 +74,30 @@ func (gt *GithubTools) actionListeners(event *tcell.EventKey) *tcell.EventKey {
 	case 'c':
 		// Make a text input modal show up
 	case 'b':
+		branchForm := NewForm()
+		form := branchForm.Form()
+
+		form.
+			AddDropDown("Branch Type", []string{"feat", "fix", "refactor"}, 0, nil).
+			AddInputField("Branch Name", "", 20, nil, nil).
+			AddButton("Submit", func() {
+				_, branchType := form.GetFormItemByLabel("Branch Type").(*tview.DropDown).GetCurrentOption()
+				branchName := form.GetFormItemByLabel("Branch Name").(*tview.InputField).GetText()
+
+				if branchName == "" {
+					branchForm.Notify("Please enter a branch name", true)
+					return
+				}
+
+				err := git.CreateBranch("jgr142/" + branchType + "/" + branchName)
+				if err != nil {
+					branchForm.notify("Branch Creation Failed: "+err.Error(), true)
+					return
+				}
+				// gt.pages.SwitchToPage("github tools")
+				// gt.pages.RemovePage("new branch")
+			})
+		// gt.pages.AddAndSwitchToPage("new branch", branchForm, true)
 	case 's':
 		// status, err := git.Status()
 		return nil
@@ -133,7 +157,7 @@ func (gt *GithubTools) actionListeners(event *tcell.EventKey) *tcell.EventKey {
 		}
 		return nil
 	case 'q':
-		gt.pages.SwitchToPage("projects search")
+		// gt.pages.SwitchToPage("projects search")
 	}
 	return event
 }
