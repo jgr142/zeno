@@ -8,6 +8,9 @@ import (
 
 type ProjectsDisplay struct {
 	*tview.Flex
+	app         *tview.Application
+	left        *tview.Flex
+	focusedItem int
 }
 
 func NewProjectsDisplay(
@@ -15,55 +18,55 @@ func NewProjectsDisplay(
 	pages *tview.Pages,
 	project *project.ProjectRepo,
 ) *ProjectsDisplay {
-	t := theme.New()
-	leftPane := defineLeftPane(app, pages, project)
-	projectDetails := defineProjectDetails(t)
+	leftPane := defineLeftPane(pages, project)
+	projectDetails := NewProjectDetails()
 
 	mainLayout := tview.NewFlex().
 		SetDirection(tview.FlexColumn).
-		AddItem(leftPane, 30, 1, true).
-		AddItem(projectDetails, 0, 3, false)
+		AddItem(leftPane, 0, 1, false).
+		AddItem(projectDetails, 0, 2, false)
 
-	mainLayout.SetBackgroundColor(t.Background)
+	mainLayout.SetBackgroundColor(theme.Background)
 
-	return &ProjectsDisplay{mainLayout}
+	pd := &ProjectsDisplay{mainLayout, app, leftPane, 0}
+
+	return pd
 }
 
-func defineLeftPane(app *tview.Application, pages *tview.Pages, project *project.ProjectRepo) *tview.Flex {
+func defineLeftPane(pages *tview.Pages, project *project.ProjectRepo) *tview.Flex {
 	projectList := NewProjectList(
 		project,
 		nil,
 		func(idx int, projectName string, projectPath string, shortcut rune) {
 			project.Open(projectPath)
-			pages.AddAndSwitchToPage("github tools", NewGithubTools(projectPath), true)
+			pages.AddAndSwitchToPage("github tools", NewGithubTools(pages, projectPath), true)
 		},
 	)
 	projectSearch := NewProjectSearch(projectList, nil)
-
-	projectList.SetOnSearch(func() {
-		app.SetFocus(projectSearch)
-	})
-
-	projectSearch.SetOnEscape(func() {
-		app.SetFocus(projectList)
-	})
 
 	left := tview.NewFlex().
 		SetDirection(tview.FlexRow).
 		AddItem(projectSearch, 1, 0, true).
 		AddItem(projectList, 0, 1, false)
 
-	left.SetBorder(true).SetTitle(" Projects ")
+	left.SetBorder(true).
+		SetTitle(" [::b]Projects ")
 
 	return left
 }
 
-func defineProjectDetails(t *theme.Theme) *tview.Box {
-	return tview.NewTextView().
-		SetText("[::b]Select a project to see details").
-		SetDynamicColors(true).
-		SetWrap(true).
-		SetTextAlign(tview.AlignLeft).
-		SetBackgroundColor(t.Background)
+func (pd *ProjectsDisplay) NavigateDown() {
+	if pd.focusedItem < pd.left.GetItemCount()-1 {
+		pd.focusedItem++
+	}
+}
 
+func (pd *ProjectsDisplay) NavigateUp() {
+	if 0 < pd.focusedItem {
+		pd.focusedItem--
+	}
+}
+
+func (pd *ProjectsDisplay) GetCurrent() tview.Primitive {
+	return pd.left.GetItem(pd.focusedItem)
 }
