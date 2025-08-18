@@ -2,7 +2,6 @@ package components
 
 import (
 	"github.com/jgr142/zeno/internal/project"
-	"github.com/jgr142/zeno/internal/ui/inputs"
 	"github.com/jgr142/zeno/internal/ui/theme"
 	"github.com/rivo/tview"
 )
@@ -25,14 +24,12 @@ func NewProjectsDisplay(
 
 	mainLayout := tview.NewFlex().
 		SetDirection(tview.FlexColumn).
-		AddItem(leftPane, 30, 1, true).
+		AddItem(leftPane, 30, 1, false).
 		AddItem(projectDetails, 0, 3, false)
 
 	mainLayout.SetBackgroundColor(t.Background)
 
 	pd := &ProjectsDisplay{mainLayout, app, leftPane, 0}
-	motions := inputs.NewVim(pd)
-	pd.SetInputCapture(motions.VimInputHandler)
 
 	return pd
 }
@@ -70,7 +67,7 @@ func defineProjectDetails(t *theme.Theme) *tview.Box {
 }
 
 func (pd *ProjectsDisplay) NavigateDown() {
-	if pd.left.GetItemCount()-1 > pd.focusedItem {
+	if pd.focusedItem < pd.left.GetItemCount()-1 {
 		pd.focusedItem++
 	}
 }
@@ -81,8 +78,6 @@ func (pd *ProjectsDisplay) NavigateUp() {
 	}
 }
 
-func (pd *ProjectsDisplay) EnterChild() {
-	pd.app.SetFocus(pd.left.GetItem(pd.focusedItem))
+func (pd *ProjectsDisplay) GetCurrent() tview.Primitive {
+	return pd.left.GetItem(pd.focusedItem)
 }
-
-func (pd *ProjectsDisplay) EnterParent() {}

@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/jgr142/zeno/internal/project"
-	"github.com/jgr142/zeno/internal/ui/inputs"
 	"github.com/jgr142/zeno/internal/ui/theme"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/rivo/tview"
@@ -48,9 +47,6 @@ func NewProjectList(
 		projectChoices.AddItem(p.Name, p.Path, 0, nil)
 	}
 
-	motions := inputs.NewVim(projectList)
-	projectList.SetInputCapture(motions.VimInputHandler)
-
 	return projectList
 }
 
@@ -76,6 +72,6 @@ func (pj *ProjectList) NavigateDown() {
 	}
 }
 
-func (pj *ProjectList) EnterChild() {}
-
-func (pj *ProjectList) EnterParent() {}
+func (pj *ProjectList) GetCurrent() tview.Primitive {
+	return nil
+}
