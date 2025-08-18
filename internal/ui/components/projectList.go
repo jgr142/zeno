@@ -22,7 +22,6 @@ func NewProjectList(
 	onSearch func(),
 	onSelect func(int, string, string, rune),
 ) *ProjectList {
-	t := theme.New()
 	projects := project.GetAll()
 	projectChoices := tview.NewList()
 
@@ -38,10 +37,10 @@ func NewProjectList(
 		ShowSecondaryText(false).
 		SetSelectedFocusOnly(false).
 		SetSelectedFunc(onSelect).
-		SetMainTextColor(t.PrimaryText).
-		SetSelectedTextColor(t.Accent).
+		SetMainTextColor(theme.PrimaryText).
+		SetSelectedTextColor(theme.Accent).
 		SetBorder(false).
-		SetBackgroundColor(t.Background)
+		SetBackgroundColor(theme.Background)
 
 	for _, p := range projects {
 		projectChoices.AddItem(p.Name, p.Path, 0, nil)

@@ -18,16 +18,15 @@ func NewProjectsDisplay(
 	pages *tview.Pages,
 	project *project.ProjectRepo,
 ) *ProjectsDisplay {
-	t := theme.New()
 	leftPane := defineLeftPane(pages, project)
-	projectDetails := defineProjectDetails(t)
+	projectDetails := NewProjectDetails()
 
 	mainLayout := tview.NewFlex().
 		SetDirection(tview.FlexColumn).
-		AddItem(leftPane, 30, 1, false).
-		AddItem(projectDetails, 0, 3, false)
+		AddItem(leftPane, 0, 1, false).
+		AddItem(projectDetails, 0, 2, false)
 
-	mainLayout.SetBackgroundColor(t.Background)
+	mainLayout.SetBackgroundColor(theme.Background)
 
 	pd := &ProjectsDisplay{mainLayout, app, leftPane, 0}
 
@@ -51,19 +50,9 @@ func defineLeftPane(pages *tview.Pages, project *project.ProjectRepo) *tview.Fle
 		AddItem(projectList, 0, 1, false)
 
 	left.SetBorder(true).
-		SetTitle(" Projects ")
+		SetTitle(" [::b]Projects ")
 
 	return left
-}
-
-func defineProjectDetails(t *theme.Theme) *tview.Box {
-	return tview.NewTextView().
-		SetText("[::b]Select a project to see details").
-		SetDynamicColors(true).
-		SetWrap(true).
-		SetTextAlign(tview.AlignLeft).
-		SetBackgroundColor(t.Background)
-
 }
 
 func (pd *ProjectsDisplay) NavigateDown() {

@@ -11,7 +11,6 @@ type ProjectSearch struct {
 }
 
 func NewProjectSearch(pj *ProjectList, onEscape func()) *ProjectSearch {
-	t := theme.New()
 	searchInput := tview.NewInputField()
 	projectSearch := &ProjectSearch{searchInput, onEscape}
 
@@ -22,7 +21,7 @@ func NewProjectSearch(pj *ProjectList, onEscape func()) *ProjectSearch {
 			pj.Filter(text)
 		}).
 		SetLabel("/").
-		SetFieldBackgroundColor(t.Primary)
+		SetFieldBackgroundColor(theme.Primary)
 
 	return projectSearch
 }
