@@ -113,7 +113,7 @@ func (vc *VimController) peekFocus() tview.Primitive {
 
 func (vc *VimController) peekParent() tview.Primitive {
 	if len(vc.focusStack) > 1 {
-		return vc.focusStack[len(vc.focusStack)-1]
+		return vc.focusStack[len(vc.focusStack)-2]
 	}
 	return nil
 }
