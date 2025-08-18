@@ -74,7 +74,13 @@ func (vc *VimController) inputHandler(event *tcell.EventKey) *tcell.EventKey {
 			return nil
 		case tcell.KeyEnter:
 			if ok {
-				logger.Info("Entering Child", "curFocus", fmt.Sprintf("%T", vc.peekFocus()), "nextFocus", fmt.Sprintf("%T", nav.GetCurrent()))
+				child := nav.GetCurrent()
+				logger.Info("Entering Child", "curFocus", fmt.Sprintf("%T", vc.peekFocus()), "nextFocus", fmt.Sprintf("%T", child))
+
+				if child == nil {
+					return event
+				}
+
 				vc.pushFocus(nav.GetCurrent())
 				return nil
 			}
