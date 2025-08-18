@@ -2,6 +2,7 @@ package components
 
 import (
 	"github.com/jgr142/zeno/internal/project"
+	"github.com/jgr142/zeno/internal/ui/inputs"
 	"github.com/jgr142/zeno/internal/ui/theme"
 	"github.com/rivo/tview"
 )
@@ -15,7 +16,7 @@ type ProjectsDisplay struct {
 
 func NewProjectsDisplay(
 	app *tview.Application,
-	pages *tview.Pages,
+	pages *inputs.VimDecorator,
 	project *project.ProjectRepo,
 ) *ProjectsDisplay {
 	leftPane := defineLeftPane(pages, project)
@@ -33,13 +34,13 @@ func NewProjectsDisplay(
 	return pd
 }
 
-func defineLeftPane(pages *tview.Pages, project *project.ProjectRepo) *tview.Flex {
+func defineLeftPane(pages *inputs.VimDecorator, project *project.ProjectRepo) *tview.Flex {
 	projectList := NewProjectList(
 		project,
 		nil,
 		func(idx int, projectName string, projectPath string, shortcut rune) {
 			project.Open(projectPath)
-			pages.AddAndSwitchToPage("github tools", NewGithubTools(pages, projectPath), true)
+			pages.AddAndSwitchToPage("github tools", NewGithubTools(projectPath), true)
 		},
 	)
 	projectSearch := NewProjectSearch(projectList, nil)

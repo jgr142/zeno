@@ -17,15 +17,13 @@ type InputReceiver interface {
 
 func Init(project *project.ProjectRepo) {
 	app := tview.NewApplication()
-	inputs.NewVimController(app)
+	dec := inputs.NewVimDecorator(app)
 
-	pages := tview.NewPages()
+	projectsDisplay := components.NewProjectsDisplay(app, dec, project)
 
-	projectsDisplay := components.NewProjectsDisplay(app, pages, project)
+	dec.AddPage("projects search", projectsDisplay, true, true)
 
-	pages.AddPage("projects search", projectsDisplay, true, true)
-
-	if err := app.SetRoot(pages, true).Run(); err != nil {
+	if err := app.SetRoot(dec.Layout(), true).Run(); err != nil {
 		log.Fatal(err.Error())
 	}
 }
